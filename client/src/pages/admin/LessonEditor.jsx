@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../../lib/api';
 import QuestionEditor, { emptyQuestion } from './QuestionEditor';
+import TimeInput from '../../components/TimeInput';
 
 // Edits a single lesson. Loads nothing itself — receives the lesson and a
 // save handler. Local draft state is committed via "Save lesson".
@@ -155,14 +156,10 @@ export default function LessonEditor({ lesson, onSaved, onDeleted }) {
                       value={c.title}
                       onChange={(e) => updateChapter(i, { title: e.target.value })}
                     />
-                    <input
-                      className="input w-24"
-                      type="number"
-                      min={0}
+                    <TimeInput
                       value={c.timestamp}
-                      onChange={(e) => updateChapter(i, { timestamp: Number(e.target.value) })}
+                      onChange={(secs) => updateChapter(i, { timestamp: secs })}
                     />
-                    <span className="text-xs text-ink-400">sec</span>
                     <button className="px-1 text-red-500" onClick={() => removeChapter(i)}>
                       ✕
                     </button>
@@ -203,14 +200,10 @@ export default function LessonEditor({ lesson, onSaved, onDeleted }) {
                         {m.type}
                       </span>
                       <label className="text-sm text-slate-500">at</label>
-                      <input
-                        className="input w-24"
-                        type="number"
-                        min={0}
+                      <TimeInput
                         value={m.timestamp}
-                        onChange={(e) => updateMarker(i, { timestamp: Number(e.target.value) })}
+                        onChange={(secs) => updateMarker(i, { timestamp: secs })}
                       />
-                      <span className="text-sm text-slate-400">sec</span>
                       <label className="ml-auto flex items-center gap-1 text-sm text-slate-500">
                         <input
                           type="checkbox"
