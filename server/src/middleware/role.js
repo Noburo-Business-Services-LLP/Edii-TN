@@ -1,0 +1,9 @@
+import ApiError from '../utils/ApiError.js';
+
+// Usage: router.post('/', requireAuth, requireRole('admin'), handler)
+export const requireRole = (...roles) => (req, res, next) => {
+  if (!req.user || !roles.includes(req.user.role)) {
+    return next(new ApiError(403, 'Insufficient permissions'));
+  }
+  next();
+};

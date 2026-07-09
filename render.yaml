@@ -1,0 +1,24 @@
+# Render Blueprint for the EDII-TN LMS backend (Express API).
+# Create a NEW service from this: Render Dashboard → New → Blueprint → pick this repo.
+services:
+  - type: web
+    name: edii-lms-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGO_URI
+        sync: false # set to your Atlas connection string in the dashboard
+      - key: CLIENT_URL
+        sync: false # set to your Vercel URL once the frontend is deployed
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES
+        value: 7d
