@@ -1,19 +1,19 @@
-# Render Blueprint for the EDII-TN LMS backend (Express API).
-# Create a NEW service from this: Render Dashboard → New → Blueprint → pick this repo.
+# Render Blueprint — single service serving BOTH the React frontend and the API.
+# Create from this: Render Dashboard → New → Blueprint → pick this repo.
 services:
   - type: web
-    name: edii-lms-api
+    name: edii-tn-lms
     runtime: node
     plan: free
-    rootDir: server
-    buildCommand: npm install
-    startCommand: npm start
+    # Build the frontend, then install the server deps.
+    # --include=dev ensures Vite (a devDependency) is available for the build,
+    # even if Render sets NODE_ENV=production.
+    buildCommand: cd client && npm install --include=dev && npm run build && cd ../server && npm install
+    startCommand: cd server && npm start
     healthCheckPath: /api/health
     envVars:
       - key: MONGO_URI
-        sync: false # set to your Atlas connection string in the dashboard
-      - key: CLIENT_URL
-        sync: false # set to your Vercel URL once the frontend is deployed
+        sync: false # set to your Atlas connection string (with /edii-lms db name)
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
