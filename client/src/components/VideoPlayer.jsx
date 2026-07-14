@@ -15,6 +15,8 @@ const VideoPlayer = forwardRef(function VideoPlayer(
   const answeredRef = useRef(new Set());
   const shownSummaryRef = useRef(new Set());
   const lastReportRef = useRef(0);
+  // True while a quiz checkpoint is open — the video must stay paused.
+  const quizBlockRef = useRef(false);
   const [activeQuiz, setActiveQuiz] = useState(null);
   const [quizAnswered, setQuizAnswered] = useState(false);
   const [toast, setToast] = useState(null);
@@ -38,6 +40,7 @@ const VideoPlayer = forwardRef(function VideoPlayer(
     answeredRef.current = new Set();
     shownSummaryRef.current = new Set();
     lastReportRef.current = 0;
+    quizBlockRef.current = false;
     setActiveQuiz(null);
     setQuizAnswered(false);
     setToast(null);
@@ -56,6 +59,7 @@ const VideoPlayer = forwardRef(function VideoPlayer(
     if (!activeQuiz) {
       const gate = firstUnansweredGate(t);
       if (gate) {
+        quizBlockRef.current = true;
         video.pause();
         setQuizAnswered(false);
         setActiveQuiz(gate);
@@ -104,9 +108,16 @@ const VideoPlayer = forwardRef(function VideoPlayer(
   }
 
   function resumeAfterQuiz() {
+    quizBlockRef.current = false; // clear the block before playing
     setActiveQuiz(null);
     setQuizAnswered(false);
     videoRef.current?.play().catch(() => {});
+  }
+
+  // Safety net: if the video ever tries to play while a checkpoint is open
+  // (native controls, autoplay, a stray resume), immediately pause it again.
+  function handlePlay() {
+    if (quizBlockRef.current) videoRef.current?.pause();
   }
 
   return (
@@ -118,6 +129,7 @@ const VideoPlayer = forwardRef(function VideoPlayer(
         className="aspect-video w-full"
         onTimeUpdate={handleTimeUpdate}
         onSeeking={handleSeeking}
+        onPlay={handlePlay}
         onEnded={handleEnded}
       />
 
