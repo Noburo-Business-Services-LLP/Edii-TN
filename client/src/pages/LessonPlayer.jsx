@@ -40,6 +40,9 @@ export default function LessonPlayer() {
 
   const flat = useMemo(() => (data ? flatten(data.course) : []), [data]);
   const current = flat.find((l) => l._id === currentId);
+  const currentIdx = flat.findIndex((l) => l._id === currentId);
+  const prevLesson = currentIdx > 0 ? flat[currentIdx - 1] : null;
+  const nextLesson = currentIdx >= 0 && currentIdx < flat.length - 1 ? flat[currentIdx + 1] : null;
   const chapters = useMemo(
     () => [...(current?.chapters || [])].sort((a, b) => a.timestamp - b.timestamp),
     [current]
@@ -166,6 +169,31 @@ export default function LessonPlayer() {
               )}
             </div>
           )}
+
+          {/* Prev / Next navigation */}
+          <div className="mt-5 flex items-center justify-between gap-3">
+            <button
+              className="btn-ghost"
+              disabled={!prevLesson}
+              onClick={() => prevLesson && setCurrentId(prevLesson._id)}
+            >
+              ← Previous
+            </button>
+            {nextLesson ? (
+              <button
+                className="btn-primary"
+                disabled={!nextLesson.unlocked}
+                onClick={() => nextLesson.unlocked && setCurrentId(nextLesson._id)}
+                title={nextLesson.unlocked ? '' : 'Finish this lesson to unlock the next one'}
+              >
+                {nextLesson.unlocked ? 'Next lesson →' : '🔒 Finish to continue'}
+              </button>
+            ) : (
+              <Link to="/my-learning" className="btn-primary">
+                Finish course ✓
+              </Link>
+            )}
+          </div>
 
           {summaries.length > 0 && (
             <div className="card mt-6 p-6">
